@@ -65,11 +65,7 @@ class MainMenuView(arcade.View):
         ]
 
         for text, view_name in buttons_data:
-            button = arcade.gui.UIFlatButton(
-                text=text,
-                width=200,
-                height=40
-            )
+            button = create_button(text)
 
             # Создаем замыкание для каждой кнопки
             def create_handler(name):
@@ -98,3 +94,37 @@ class MainMenuView(arcade.View):
         """Обработка изменения размера окна"""
         super().on_resize(width, height)
         self.create_ui()
+
+
+def create_button(text, color_scheme="blue"):
+    color_map = {
+        "blue": {"normal": (57, 91, 158), "hover": (72, 118, 205), "press": (35, 60, 110)},
+        "green": {"normal": (57, 158, 91), "hover": (72, 205, 118), "press": (35, 110, 60)},
+        "red": {"normal": (158, 57, 57), "hover": (205, 72, 72), "press": (110, 35, 35)}
+    }
+
+    colors = color_map[color_scheme]
+
+    return arcade.gui.UIFlatButton(
+        text=text,
+        width=220,
+        height=55,
+        style={
+            "normal": {
+                "font_name": "Arial",
+                "font_size": 20,
+                "font_color": arcade.color.WHITE,
+                "bg_color": colors["normal"],
+                "border_color": arcade.color.WHITE,
+                "border_width": 2
+            },
+            "hover": {
+                "bg_color": colors["hover"],
+                "border_color": (255, 215, 0)
+            },
+            "press": {
+                "bg_color": colors["press"],
+                "font_color": arcade.color.YELLOW
+            }
+        }
+    )
