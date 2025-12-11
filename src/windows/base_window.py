@@ -13,6 +13,7 @@ class BaseWindow(arcade.Window):
         self.center_window()
         self.background_color = arcade.color.BLACK
         self.set_fullscreen(not self.fullscreen)
+
         # Храним представления
         self.views = {}
 
