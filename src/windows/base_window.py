@@ -1,4 +1,6 @@
 # base_window.py
+import os
+
 import arcade
 from src.settings import settings
 
@@ -14,7 +16,9 @@ class BaseWindow(arcade.Window):
         self.background_color = arcade.color.BLACK
         self.set_fullscreen(not self.fullscreen)
         self.images={}
-        self.img_paths=[f"resources/t{i}.jpg" for i in range(1,1001)]
+        folder=os.path.join(os.path.abspath("."),"./resources")
+        self.img_paths=["resources/"+f for f in os.listdir(folder)]
+        print(self.img_paths)
         # Храним представления
         self.views = {}
 
@@ -31,9 +35,11 @@ class BaseWindow(arcade.Window):
         return self.views[view_name]
 
     def switch_view(self, view_name):
-        """Переключиться на представление"""
-        view = self.get_view(view_name)
-        self.show_view(view)
+        if view_name!="exit":
+            view = self.get_view(view_name)
+            self.show_view(view)
+        else:
+            arcade.exit()
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.Q:
