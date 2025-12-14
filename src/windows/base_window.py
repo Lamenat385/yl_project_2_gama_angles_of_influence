@@ -18,7 +18,6 @@ class BaseWindow(arcade.Window):
         self.images={}
         folder=os.path.join(os.path.abspath("."),"./resources")
         self.img_paths=["resources/"+f for f in os.listdir(folder)]
-        print(self.img_paths)
         # Храним представления
         self.views = {}
 

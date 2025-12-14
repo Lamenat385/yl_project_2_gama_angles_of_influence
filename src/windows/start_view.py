@@ -38,7 +38,6 @@ class StartView(arcade.View):
         if F and F[0]=="success":
             self.window.images[F[-1]]=F[1]
             self.update_corner_text(f"{F[2]/len(self.window.img_paths)*100:.1f}%")
-            print(f"{F[2]/len(self.window.img_paths)*100:.1f}%")
             if F[2] == len(self.window.img_paths):
                 self.window.switch_view("main_menu")
         elif F and F[0]!="success":
