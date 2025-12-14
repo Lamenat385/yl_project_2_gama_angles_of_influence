@@ -14,8 +14,10 @@ class StartView(arcade.View):
         self.batch = Batch()
         self.shape_list = arcade.shape_list.ShapeElementList()
         self.name_game = None
+        reg.load_image_threaded(self.window.img_paths)
         self.rect_outline = None
-
+        self.corner_text = None
+        self.score = "0%"
     def setup(self):
         """Инициализация представления"""
         self.create_text()
@@ -32,17 +34,45 @@ class StartView(arcade.View):
         self.shape_list.draw()
 
     def on_update(self, delta_time):
-        """Обновление логики"""
-        self.timer += delta_time
-
-        # Переход на главное меню через 5 секунд
-        if self.timer >= 5.0:
+        F = reg.check_queue()
+        if F and F[0]=="success":
+            self.window.images[F[-1]]=F[1]
+            self.update_corner_text(f"{F[2]/len(self.window.img_paths)*100:.1f}%")
+        elif F[0]!="success":
+            print(F[1])
+        if F[2]==len(self.window.img_paths):
             self.window.switch_view("main_menu")
 
     def on_resize(self, width: float, height: float):
         """Обработка изменения размера окна"""
         super().on_resize(width, height)
         self.create_text()
+        self.update_corner_text()
+
+    def update_corner_text(self, new_text=None):
+        """Обновление текста в углу"""
+        if new_text:
+            self.score = new_text
+
+        # Удаляем старый текст
+        if self.corner_text:
+            self.corner_text = None
+
+        # Создаем новый
+        padding_x = int(self.window.width * 0.02)
+        padding_y = int(self.window.height * 0.02)
+        font_size = int(self.window.height * 0.03)
+
+        self.corner_text = arcade.Text(
+            text=self.score,
+            x=self.window.width-padding_x,
+            y=padding_y,
+            color=arcade.color.WHITE,
+            font_size=font_size,
+            anchor_x="center",
+            anchor_y="center",
+            batch=self.batch
+        )
 
     def create_text(self):
         """Создание текста и рамки"""
