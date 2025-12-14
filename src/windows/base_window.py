@@ -13,7 +13,8 @@ class BaseWindow(arcade.Window):
         self.center_window()
         self.background_color = arcade.color.BLACK
         self.set_fullscreen(not self.fullscreen)
-
+        self.img_paths=[f'resources/t{i}.jpg' for i in range(1,1001)]
+        self.images={}
         # Храним представления
         self.views = {}
 

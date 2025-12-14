@@ -18,8 +18,8 @@ class Registry:
     def download_image(self, names):
         try:
             for i in range(len(names)):
-                image = arcade.load_texture(names[0])
-                self.image_queue.put(('success', image,i+1))
+                image = arcade.load_texture(names[i])
+                self.image_queue.put(('success', image,i+1,names[i]))
 
         except Exception as e:
             # В случае ошибки отправляем сообщение
