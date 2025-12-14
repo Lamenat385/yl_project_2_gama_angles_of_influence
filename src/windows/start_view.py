@@ -38,10 +38,10 @@ class StartView(arcade.View):
         if F and F[0]=="success":
             self.window.images[F[-1]]=F[1]
             self.update_corner_text(f"{F[2]/len(self.window.img_paths)*100:.1f}%")
-        elif F[0]!="success":
+            if F[2] == len(self.window.img_paths):
+                self.window.switch_view("main_menu")
+        elif F and F[0]!="success":
             print(F[1])
-        if F[2]==len(self.window.img_paths):
-            self.window.switch_view("main_menu")
 
     def on_resize(self, width: float, height: float):
         """Обработка изменения размера окна"""
