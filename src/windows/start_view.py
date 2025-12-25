@@ -14,7 +14,7 @@ class StartView(arcade.View):
         self.batch = Batch()
         self.shape_list = arcade.shape_list.ShapeElementList()
         self.name_game = None
-        reg.load_image_threaded(self.window.img_paths)
+        reg.load_image_threaded()
         self.rect_outline = None
         self.corner_text = None
         self.score = "0%"
@@ -36,9 +36,9 @@ class StartView(arcade.View):
     def on_update(self, delta_time):
         F = reg.check_queue()
         if F and F[0]=="success":
-            self.window.images[F[-1]]=F[1]
-            self.update_corner_text(f"{F[2]/len(self.window.img_paths)*100:.1f}%")
-            if F[2] == len(self.window.img_paths):
+            reg.images[F[-1]]=F[1]
+            self.update_corner_text(f"{F[2]/len(reg.img_paths)*100:.1f}%")
+            if F[2] == len(reg.img_paths):
                 self.window.switch_view("main_menu")
         elif F and F[0]!="success":
             print(F[1])

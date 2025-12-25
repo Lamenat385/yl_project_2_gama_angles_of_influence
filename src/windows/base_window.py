@@ -1,6 +1,3 @@
-# base_window.py
-import os
-
 import arcade
 from src.settings import settings
 
@@ -15,9 +12,6 @@ class BaseWindow(arcade.Window):
         self.center_window()
         self.background_color = arcade.color.BLACK
         self.set_fullscreen(not self.fullscreen)
-        self.images={}
-        folder=os.path.join(os.path.abspath("."),"./resources")
-        self.img_paths=["resources/"+f for f in os.listdir(folder)]
         # Храним представления
         self.views = {}
 

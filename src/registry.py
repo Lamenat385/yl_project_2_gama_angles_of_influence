@@ -1,3 +1,4 @@
+import os
 import threading
 import queue
 import arcade
@@ -6,19 +7,22 @@ import arcade
 class Registry:
     def __init__(self):
         self.image_queue = queue.Queue()
+        self.images = {}
+        folder = os.path.join(os.path.abspath("."), "./resources")
+        self.img_paths = ["resources/" + f for f in os.listdir(folder)]
 
-    def load_image_threaded(self,names):
+    def load_image_threaded(self):
         thread = threading.Thread(
             target=self.download_image,
-            args=(names,),
+            args=(),
             daemon=True  # Поток завершится при закрытии приложения
         )
         thread.start()
 
-    def download_image(self, names):
+    def download_image(self):
         try:
-            for i in range(len(names)):
-                image = arcade.load_texture(names[0])
+            for i in range(len(self.img_paths)):
+                image = arcade.load_texture(self.img_paths[0])
                 self.image_queue.put(('success', image,i+1))
 
         except Exception as e:
