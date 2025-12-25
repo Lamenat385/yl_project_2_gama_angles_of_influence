@@ -27,6 +27,9 @@ class BaseWindow(arcade.Window):
             elif view_name == "start_game":
                 from src.windows.saves_view import SaveGameView
                 self.views[view_name] = SaveGameView(self)
+            elif view_name == "stuart_game":
+                from src.windows.game_view import GameView
+                self.views[view_name] = GameView(self)
 
         return self.views[view_name]
 

@@ -59,7 +59,7 @@ class MainMenuView(arcade.View):
 
         # Кнопки
         buttons_data = [
-            ("Начать игру", "start_game"),
+            ("Начать игру", "stuart_game"),
             ("Настройки", "settings"),
             ("Выход", "exit")
         ]

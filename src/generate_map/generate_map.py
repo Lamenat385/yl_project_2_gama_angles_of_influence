@@ -1,12 +1,11 @@
 import opensimplex as op
 import numpy as np
 from scipy.ndimage import gaussian_filter
-import matplotlib.pyplot as plt
 from random import seed
-from rivers import add_rivers
-from stones import add_stones
-from fossils import get_fossils_mask
-from forest import get_forest_mask
+from src.generate_map.rivers import add_rivers
+from src.generate_map.stones import add_stones
+from src.generate_map.fossils import get_fossils_mask
+from src.generate_map.forest import get_forest_mask
 
 def set_seed(s):
     seed(s)
@@ -49,4 +48,5 @@ def generation_world_map(N, M, lenght, rt, m, rad,s,M1,lenght1,rt1,m1,rad1):
     forest_mask = np.where(mapp > 0.6, 0, forest_mask)
     forest_mask = np.where(mapp < 0.2, 0, forest_mask)
     return mapp,fossils,forest_mask
-#(512, 3, 20, 0.09, 30, 2,67,3,10,0.2,50,7.5)
+
+basic=(512, 3, 20, 0.09, 30, 2,67,3,10,0.2,50,7.5)
