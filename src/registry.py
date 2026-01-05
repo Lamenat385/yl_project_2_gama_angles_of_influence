@@ -22,8 +22,8 @@ class Registry:
     def download_image(self):
         try:
             for i in range(len(self.img_paths)):
-                image = arcade.load_texture(self.img_paths[0])
-                self.image_queue.put(('success', image,i+1))
+                image = arcade.load_texture(self.img_paths[i])
+                self.image_queue.put(('success', image,i+1,self.img_paths[i]))
 
         except Exception as e:
             # В случае ошибки отправляем сообщение

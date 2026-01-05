@@ -1,18 +1,24 @@
 import arcade
 import numpy as np
+from random import choice
+
+from src.registry import reg
+
 
 class GameView(arcade.View):
     """Основной игровой view с картой высот и камерой"""
 
     def __init__(self, window):
         super().__init__(window)
-
+        self.trees=np.load("data/worlds/1/forest.npy")
         self.height_map = np.load("data/worlds/1/land.npy")  # 2D массив высот NxN
         self.N = len(self.height_map)
-        self.cell_size_percent = 5
+        self.cell_size_percent = 1.25
         self.cell_size = int(self.window.height * self.cell_size_percent / 100)
         self.map_width = self.N * self.cell_size
         self.map_height = self.N * self.cell_size
+        self.texture = arcade.load_texture("data/worlds/1/land.png")
+        # Создаем спрайт
 
         # Создаем камеру (используем SimpleCamera для простоты)
         # SimpleCamera предоставляет базовый функционал камеры
@@ -23,14 +29,6 @@ class GameView(arcade.View):
         self.camera_x = self.map_width / 2
         self.camera_y = self.map_height / 2
         self.camera_speed = self.map_width / 6
-        # Цвета для высот
-        self.colors = [
-            arcade.color.DARK_GREEN,
-            arcade.color.FOREST_GREEN,
-            arcade.color.TAN,
-            arcade.color.BROWN,
-            arcade.color.WHITE
-        ]
 
         # Управление камерой
         self.camera_moving = {
@@ -44,24 +42,19 @@ class GameView(arcade.View):
     def create_shapes(self):
         """Создание спрайтов для отрисовки сетки"""
         self.sprite_list = arcade.SpriteList()
-
-        for y in range(self.N):
-            for x in range(self.N):
-                height = self.height_map[y][x]
-                color_index = min(int(height * (len(self.colors) - 1)), len(self.colors) - 1)
-                color = self.colors[color_index]
-
-                # Создаем спрайт-прямоугольник
-                sprite = arcade.SpriteSolidColor(
-                    width=self.cell_size,
-                    height=self.cell_size,
-                    color=color,
-                )
-                # Устанавливаем позицию
-                sprite.center_x = x * self.cell_size + self.cell_size / 2
-                sprite.center_y = y * self.cell_size + self.cell_size / 2
-
-                self.sprite_list.append(sprite)
+        sprite = arcade.Sprite()
+        sprite.texture = self.texture
+        sprite.center_x = self.map_width / 2
+        sprite.center_y = self.map_height / 2
+        sprite.scale = self.cell_size
+        self.sprite_list.append(sprite)
+        for y,x in self.trees:
+            sprite = arcade.Sprite()
+            sprite.texture = choice((reg.images["resources/tree1.png"],reg.images["resources/tree2.png"]))
+            sprite.center_x = x*self.cell_size
+            sprite.center_y = y*self.cell_size
+            sprite.scale = 10*self.cell_size/128
+            self.sprite_list.append(sprite)
 
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -69,7 +62,7 @@ class GameView(arcade.View):
     def on_draw(self):
         self.clear()
         self.camera.use()
-        self.sprite_list.draw()
+        self.sprite_list.draw(pixelated=True)
         self.gui_camera.use()
         self.draw_gui()
 
@@ -152,8 +145,8 @@ class GameView(arcade.View):
         self.create_shapes()
 
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-        zoom_sensitivity = 0.1
+        zoom_sensitivity = 0.05
         self.camera.zoom += scroll_y * zoom_sensitivity
 
         # Ограничиваем масштаб
-        self.camera.zoom = max(0.1, min(self.camera.zoom, 5.0))
+        self.camera.zoom = max(0.05, min(self.camera.zoom, 5.0))
