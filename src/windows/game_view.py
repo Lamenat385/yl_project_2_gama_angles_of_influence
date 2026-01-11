@@ -10,14 +10,17 @@ class GameView(arcade.View):
 
     def __init__(self, window):
         super().__init__(window)
-        self.trees=np.load("data/worlds/1/forest.npy")
-        self.height_map = np.load("data/worlds/1/land.npy")  # 2D массив высот NxN
+        self.trees=np.load("data/saves/1/forest.npy")
+        self.height_map = np.load("data/saves/1/land.npy")  # 2D массив высот NxN
         self.N = len(self.height_map)
         self.cell_size_percent = 1.25
         self.cell_size = int(self.window.height * self.cell_size_percent / 100)
         self.map_width = self.N * self.cell_size
         self.map_height = self.N * self.cell_size
-        self.texture = arcade.load_texture("data/worlds/1/land.png")
+        self.world_texture = arcade.load_texture("data/saves/1/land.png")
+        self.fossils_texture = arcade.load_texture("data/saves/1/fossils.png")
+        self.fossils_view=True
+        self.fossils_sprite=None
         # Создаем спрайт
 
         # Создаем камеру (используем SimpleCamera для простоты)
@@ -43,7 +46,7 @@ class GameView(arcade.View):
         """Создание спрайтов для отрисовки сетки"""
         self.sprite_list = arcade.SpriteList()
         sprite = arcade.Sprite()
-        sprite.texture = self.texture
+        sprite.texture = self.world_texture
         sprite.center_x = self.map_width / 2
         sprite.center_y = self.map_height / 2
         sprite.scale = self.cell_size
@@ -55,6 +58,11 @@ class GameView(arcade.View):
             sprite.center_y = y*self.cell_size
             sprite.scale = 10*self.cell_size/128
             self.sprite_list.append(sprite)
+        self.fossils_sprite = arcade.Sprite()
+        self.fossils_sprite.texture = self.fossils_texture
+        self.fossils_sprite.center_x = self.map_width / 2
+        self.fossils_sprite.center_y = self.map_height / 2
+        self.fossils_sprite.scale = self.cell_size
 
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -87,6 +95,10 @@ class GameView(arcade.View):
         )
 
     def on_update(self, delta_time):
+        if self.fossils_sprite in self.sprite_list and not self.fossils_view:
+            self.sprite_list.remove(self.fossils_sprite)
+        elif self.fossils_sprite not in self.sprite_list and self.fossils_view:
+            self.sprite_list.append(self.fossils_sprite)
         speed = self.camera_speed * delta_time
         new_camera_x = self.camera_x
         new_camera_y = self.camera_y
@@ -116,6 +128,8 @@ class GameView(arcade.View):
             self.camera_moving['left'] = True
         elif key == arcade.key.D:
             self.camera_moving['right'] = True
+        elif key == arcade.key.V:
+            self.fossils_view= not self.fossils_view
         elif key == arcade.key.Q:
             self.window.close()
         elif key == arcade.key.ESCAPE:

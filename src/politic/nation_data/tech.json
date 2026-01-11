@@ -1,0 +1,15 @@
+{
+  "food_ef": 1.0,
+  "population_ef": 1.0,
+  "oil_ef": 1.0,
+  "iron_ef": 1.0,
+  "copper_ef": 1.0,
+  "uran_ef": 1.0,
+  "comp_t1_ef": 1.0,
+  "comp_t2_ef": 1.0,
+  "comp_t3_ef": 1.0,
+  "sea_ef": 1.0,
+  "earth_ef": 1.0,
+  "rocket_ef": 1.0,
+  "artillery_ef": 1.0
+}
