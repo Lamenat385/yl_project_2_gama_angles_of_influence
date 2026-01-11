@@ -43,7 +43,7 @@ class SaveGameView(arcade.View):
 
         try:
             with open(csv_path, 'r', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile,delimiter=";")
+                reader = csv.DictReader(csvfile, delimiter=";")
                 for row in reader:
                     # Проверяем существование файла изображения
                     img_path = row.get('image_path', '')

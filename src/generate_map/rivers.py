@@ -75,10 +75,6 @@ def make_rives(map, M, length, rt, m):
 
 
 def mark_cells_near_polyline(field, p, f, radius=5):
-    """
-    Надежная функция для отметки клеток в радиусе от ломаной линии.
-    Исправлена проблема с индексами.
-    """
     if not isinstance(field, np.ndarray):
         result = np.array(field, dtype=float)
     else:

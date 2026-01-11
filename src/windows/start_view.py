@@ -18,6 +18,7 @@ class StartView(arcade.View):
         self.rect_outline = None
         self.corner_text = None
         self.score = "0%"
+
     def setup(self):
         """Инициализация представления"""
         self.create_text()
@@ -35,12 +36,12 @@ class StartView(arcade.View):
 
     def on_update(self, delta_time):
         F = reg.check_queue()
-        if F and F[0]=="success":
-            reg.images[F[-1]]=F[1]
-            self.update_corner_text(f"{F[2]/len(reg.img_paths)*100:.1f}%")
+        if F and F[0] == "success":
+            reg.images[F[-1]] = F[1]
+            self.update_corner_text(f"{F[2] / len(reg.img_paths) * 100:.1f}%")
             if F[2] == len(reg.img_paths):
                 self.window.switch_view("main_menu")
-        elif F and F[0]!="success":
+        elif F and F[0] != "success":
             print(F[1])
 
     def on_resize(self, width: float, height: float):
@@ -65,7 +66,7 @@ class StartView(arcade.View):
 
         self.corner_text = arcade.Text(
             text=self.score,
-            x=self.window.width-padding_x,
+            x=self.window.width - padding_x,
             y=padding_y,
             color=arcade.color.WHITE,
             font_size=font_size,

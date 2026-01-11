@@ -5,7 +5,7 @@ def check_graph_integrity(edges):
     # Строим граф в виде словаря смежности
     graph = {}
     for v1, v2 in edges:
-        if v1!=v2:
+        if v1 != v2:
             graph.setdefault(v1, []).append(v2)
             graph.setdefault(v2, []).append(v1)
 
@@ -114,17 +114,17 @@ class Group:
         for i in self.builds_set:
             if id == i.id:
                 self.builds_set.remove(i)
-        result=set()
+        result = set()
         for i in check_graph_integrity(self.links_set):
-            result.add(Group(self.manager,i))
+            result.add(Group(self.manager, i))
         return result
 
     def delete_link(self, link):
         self.links_set.remove(link)
-        result=[]
+        result = []
         for i in check_graph_integrity(self.links_set):
-            result.append(Group(self.manager,i))
+            result.append(Group(self.manager, i))
         return result
 
-    def unification(self,other,link):
+    def unification(self, other, link):
         return Group(self.manager, list(self.links_set) + list(other.links_set) + [link])

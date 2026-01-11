@@ -10,21 +10,28 @@ class Manager:
 
     def new_build(self, build):
         self.current_id += 1
-        build.id=f"#{self.current_id}"
+        build.id = f"#{self.current_id}"
         self.id_to_build[f"#{self.current_id}"] = build
 
     def new_link(self, link):
         t = []
+        k = False
         for i in self.groups_set:
-            id_list=[j.id for j in i.builds_set]
+            id_list = [j.id for j in i.builds_set]
             if link[0] in id_list and link[1] in id_list:
                 i.links_set.add(link)
                 break
             elif link[0] in id_list or link[1] in id_list:
+                k = True
                 t.append(i)
-        self.groups_set.remove(t[0])
-        self.groups_set.remove(t[1])
-        self.groups_set.add(t[0].unification(t[1], link))
+        if k:
+            self.groups_set.remove(t[0])
+            self.groups_set.remove(t[1])
+            self.groups_set.add(t[0].unification(t[1], link))
+
+            t[0].nation.groups_set.remove(t[0])
+            self.groups_set.remove(t[1])
+            self.groups_set.add(t[0].unification(t[1], link))
 
     def delete_link(self, link):
         for i in self.groups_set:

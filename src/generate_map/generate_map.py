@@ -33,7 +33,7 @@ def get_big_land_mask(N):
     noise_fast = op.noise2array(x, y)
 
     noise_mask = np.where(noise_fast < 0, 1, noise_fast)
-    noise_mask=np.where(noise_fast > 0, 0, noise_mask)
+    noise_mask = np.where(noise_fast > 0, 0, noise_mask)
 
     scale = 50
     x = np.linspace(0, width / scale, width)
@@ -41,6 +41,7 @@ def get_big_land_mask(N):
     noise_fast = op.noise2array(x, y)
     noise_mask = np.where(noise_fast < -0.5, 1, noise_mask)
     return noise_mask
+
 
 def height_to_color(H):
     H = max(0.0, min(1.0, H))
@@ -85,10 +86,11 @@ def heightmap_to_png(Hmap):
         for j in i:
             k.append(height_to_color(j))
         t.append(k)
-    img_array=np.array(t)
+    img_array = np.array(t)
     img_array = img_array[::-1, ...]
     image = Image.fromarray(img_array, mode='RGB')
     return image
+
 
 def fossils_to_png(fossils):
     palette = {
@@ -103,9 +105,10 @@ def fossils_to_png(fossils):
     for value, color in palette.items():
         mask = (fossils == value)
         rgb_array[mask] = color
-    rgb_array=rgb_array[::-1]
+    rgb_array = rgb_array[::-1]
     img = Image.fromarray(rgb_array, mode='RGBA')
     return img
+
 
 def get_uniform_points_adaptive(mask, min_distance=5, max_points=6000):
     y_coords, x_coords = np.where(mask)
@@ -167,8 +170,8 @@ def generation_world_map(N, M, lenght, rt, m, rad, M1, lenght1, rt1, m1, rad1, s
     forest = get_uniform_points_adaptive(forest_mask)
 
     image_land = heightmap_to_png(mapp)
-    image_fossils=fossils_to_png(fossils)
-    return image_land,image_fossils, mapp, fossils, forest
+    image_fossils = fossils_to_png(fossils)
+    return image_land, image_fossils, mapp, fossils, forest
 
 
 basic = (512, 3, 20, 0.09, 30, 2, 3, 10, 0.2, 50, 7.5)

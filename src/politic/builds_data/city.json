@@ -1,11 +1,11 @@
 {
   "resources_for_build": {
     "food": 0,
-    "population": 0,
+    "population": 20,
     "electry": 0,
     "tree": 0,
-    "stone": 0,
-    "iron": 0,
+    "stone": 30,
+    "iron": 10,
     "copper": 0,
     "uran": 0,
     "oil": 0,
@@ -14,22 +14,22 @@
     "comp_t3": 0
   },
   "need_resources": {
-    "food": 0,
+    "food": 40,
     "population": 0,
-    "electry": 0,
+    "electry": 20,
     "tree": 0,
     "stone": 0,
     "iron": 0,
     "copper": 0,
     "uran": 0,
     "oil": 0,
-    "comp_t1": 0,
+    "comp_t1": 1,
     "comp_t2": 0,
     "comp_t3": 0
   },
   "out_resources": {
     "food": 0,
-    "population": 0,
+    "population": 100,
     "electry": 0,
     "tree": 0,
     "stone": 0,

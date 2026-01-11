@@ -1,6 +1,7 @@
 import numpy as np
 import opensimplex as op
 
+
 def get_fossils_mask(N):
     width, height = N, N
 

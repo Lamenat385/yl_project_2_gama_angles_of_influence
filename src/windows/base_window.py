@@ -34,7 +34,7 @@ class BaseWindow(arcade.Window):
         return self.views[view_name]
 
     def switch_view(self, view_name):
-        if view_name!="exit":
+        if view_name != "exit":
             view = self.get_view(view_name)
             self.show_view(view)
         else:

@@ -4,13 +4,12 @@ from random import randint, random
 import numpy as np
 
 
-
 def begin_vc(N, M):
-    d=[]
+    d = []
     for i in range(M):
-        x1=randint(15,N-15)
-        y1=randint(15,N-15)
-        d.append((x1,y1,x1+randint(-15,15),y1+randint(-15,15)))
+        x1 = randint(15, N - 15)
+        y1 = randint(15, N - 15)
+        d.append((x1, y1, x1 + randint(-15, 15), y1 + randint(-15, 15)))
     return d
 
 

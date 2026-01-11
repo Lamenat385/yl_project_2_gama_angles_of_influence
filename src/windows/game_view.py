@@ -10,7 +10,7 @@ class GameView(arcade.View):
 
     def __init__(self, window):
         super().__init__(window)
-        self.trees=np.load("data/saves/1/forest.npy")
+        self.trees = np.load("data/saves/1/forest.npy")
         self.height_map = np.load("data/saves/1/land.npy")  # 2D массив высот NxN
         self.N = len(self.height_map)
         self.cell_size_percent = 1.25
@@ -19,8 +19,8 @@ class GameView(arcade.View):
         self.map_height = self.N * self.cell_size
         self.world_texture = arcade.load_texture("data/saves/1/land.png")
         self.fossils_texture = arcade.load_texture("data/saves/1/fossils.png")
-        self.fossils_view=True
-        self.fossils_sprite=None
+        self.fossils_view = True
+        self.fossils_sprite = None
         # Создаем спрайт
 
         # Создаем камеру (используем SimpleCamera для простоты)
@@ -51,12 +51,12 @@ class GameView(arcade.View):
         sprite.center_y = self.map_height / 2
         sprite.scale = self.cell_size
         self.sprite_list.append(sprite)
-        for y,x in self.trees:
+        for y, x in self.trees:
             sprite = arcade.Sprite()
-            sprite.texture = choice((reg.images["resources/tree1.png"],reg.images["resources/tree2.png"]))
-            sprite.center_x = x*self.cell_size
-            sprite.center_y = y*self.cell_size
-            sprite.scale = 10*self.cell_size/128
+            sprite.texture = choice((reg.images["resources/tree1.png"], reg.images["resources/tree2.png"]))
+            sprite.center_x = x * self.cell_size
+            sprite.center_y = y * self.cell_size
+            sprite.scale = 10 * self.cell_size / 128
             self.sprite_list.append(sprite)
         self.fossils_sprite = arcade.Sprite()
         self.fossils_sprite.texture = self.fossils_texture
@@ -114,11 +114,12 @@ class GameView(arcade.View):
 
         self.camera.position = arcade.math.lerp_2d(  # Изменяем позицию камеры
             self.camera.position,
-            (new_camera_x,new_camera_y),
+            (new_camera_x, new_camera_y),
             0.13,  # Плавность следования камеры
         )
-        self.camera_x=new_camera_x
+        self.camera_x = new_camera_x
         self.camera_y = new_camera_y
+
     def on_key_press(self, key, modifiers):
         if key == arcade.key.W:
             self.camera_moving['up'] = True
@@ -129,7 +130,7 @@ class GameView(arcade.View):
         elif key == arcade.key.D:
             self.camera_moving['right'] = True
         elif key == arcade.key.V:
-            self.fossils_view= not self.fossils_view
+            self.fossils_view = not self.fossils_view
         elif key == arcade.key.Q:
             self.window.close()
         elif key == arcade.key.ESCAPE:
