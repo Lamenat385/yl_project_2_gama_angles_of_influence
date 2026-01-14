@@ -79,8 +79,16 @@ class GameView(arcade.View):
         sprite.center_y = self.map_height / 2
         sprite.scale = self.cell_size
         self.sprite_list.append(sprite)
+        class Road:
+            def __init__(self,args):
+                self.args=args
+            def draw(self):
+                arcade.draw.draw_line(*self.args)
+
+        for i in self.roads:
+            self.sprite_list.append()
+
         self.update_roads()
-        arcade.draw.draw_lines(self.roads,arcade.color.BLACK,self.cell_size*4)
         for j in self.groups_manager.id_to_build.values():
             x,y=j.coordinates
             sprite = arcade.Sprite()
@@ -375,17 +383,17 @@ class GameView(arcade.View):
     def update_roads(self):
         self.roads=[]
         for i in self.groups_manager.groups_set:
-            print("ROAD1")
             for j in i.links_set:
-                x1,y1=self.groups_manager.id_to_build[j[0]].coordinates
-                x1*=self.cell_size
-                y1 *= self.cell_size
+                if j[0]!=j[1]:
+                    x1,y1=self.groups_manager.id_to_build[j[0]].coordinates
+                    print(f"from {j[0]} to {j[1]}")
+                    x1*=self.cell_size
+                    y1 *= self.cell_size
 
-                x2, y2 = self.groups_manager.id_to_build[j[1]].coordinates
-                x2 *= self.cell_size
-                y2 *= self.cell_size
-                print((x1,y1,x2,y2))
-                self.roads.append((x1,y1,x2,y2))
+                    x2, y2 = self.groups_manager.id_to_build[j[1]].coordinates
+                    x2 *= self.cell_size
+                    y2 *= self.cell_size
+                    self.roads.append((x1,y1,x2,y2))
 
 
     def on_key_press(self, key, modifiers):
@@ -401,7 +409,7 @@ class GameView(arcade.View):
             self.fossils_view = not self.fossils_view
         elif key == arcade.key.P:
             self.create_shapes()
-        elif key == arcade.key.SPACE:
+        elif key == arcade.key.TAB:
             if len(self.selected_builds)==2:
                 link=(self.selected_builds[0].id,self.selected_builds[1].id)
                 print(link)
