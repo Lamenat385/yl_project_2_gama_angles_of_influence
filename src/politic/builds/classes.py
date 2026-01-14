@@ -20,7 +20,7 @@ class Farm(FM_Build):
     def get_fruitfulness(self, mapp):
         rows, cols = mapp.shape
         c0, r0 = self.coordinates
-        radius = 15
+        radius = 25
         r_start = max(0, r0 - radius)
         r_end = min(rows, r0 + radius + 1)
         c_start = max(0, c0 - radius)
@@ -42,7 +42,7 @@ class Mine(FM_Build):
     def get_fruitfulness(self, mapp):
         rows, cols = mapp.shape
         c0, r0 = self.coordinates
-        radius = 15
+        radius = 20
         r_start = max(0, r0 - radius)
         r_end = min(rows, r0 + radius + 1)
         c_start = max(0, c0 - radius)

@@ -16,6 +16,11 @@ class Manager:
         self.id_to_build[f"#{self.current_id}"] = build
         self.groups_set.add(Group(self, [(build.id, build.id)]))
 
+    def build_to_group(self,build):
+        for i in self.groups_set:
+            if build in i.builds_set:
+                return i
+
     def new_link(self, link):
         t = []
         k = False
@@ -38,3 +43,6 @@ class Manager:
                 self.groups_set.remove(i)
                 self.groups_set = self.groups_set | i.delete_link()
                 break
+    def update(self):
+        for i in self.groups_set:
+            i.update(self.world_map)

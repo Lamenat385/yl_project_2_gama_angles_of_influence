@@ -50,6 +50,7 @@ def check_graph_integrity(edges):
 class Group:
     def __init__(self, manager, links):
         self.manager = manager
+        self.new_builds=[]
         self.links_set = set(links)
         items = set()
         self.builds_set = set()
@@ -60,18 +61,18 @@ class Group:
             self.builds_set.add(self.manager.id_to_build[i])
         self.needs = None
         self.resources = {
-            "food": 0,
-            "population": 0,
-            "electry": 0,
-            "tree": 0,
-            "stone": 0,
-            "iron": 0,
-            "copper": 0,
-            "uran": 0,
-            "oil": 0,
-            "comp_t1": 0,
-            "comp_t2": 0,
-            "comp_t3": 0,
+            "food": 500,
+            "population": 500,
+            "electry": 500,
+            "tree": 500,
+            "stone": 500,
+            "iron": 500,
+            "copper": 500,
+            "uran": 500,
+            "oil": 500,
+            "comp_t1": 500,
+            "comp_t2": 500,
+            "comp_t3": 500,
         }
         self.resources_level = {
             "food": 0,
@@ -95,16 +96,13 @@ class Group:
         self.needs = dict(res_in)
         for key in self.needs.keys():
             try:
-                self.resources_level[key] = self.needs[key] / self.resources[key]
+                self.resources_level[key] = self.resources[key] / self.needs[key]
             except ZeroDivisionError:
                 self.resources_level[key] = 0
             self.resources_level[key] = min(1.0, self.resources_level[key])
         res_out = Counter()
         for i in self.builds_set:
-            try:
-                res_out.update(i.OUT_resources(self.resources_level))
-            except TypeError:
-                res_out.update(i.OUT_resources(self.resources_level, mapp))
+            res_out.update(i.OUT_resources(self.resources_level, mapp))
         self.resources = dict(res_out)
 
     def delete_build(self, id):
