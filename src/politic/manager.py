@@ -1,5 +1,7 @@
 import numpy as np
 
+from src.politic.groups.group import Group
+
 
 class Manager:
     def __init__(self, mapp):
@@ -12,6 +14,7 @@ class Manager:
         self.current_id += 1
         build.id = f"#{self.current_id}"
         self.id_to_build[f"#{self.current_id}"] = build
+        self.groups_set.add(Group(self, [(build.id, build.id)]))
 
     def new_link(self, link):
         t = []
@@ -26,10 +29,6 @@ class Manager:
                 t.append(i)
         if k:
             self.groups_set.remove(t[0])
-            self.groups_set.remove(t[1])
-            self.groups_set.add(t[0].unification(t[1], link))
-
-            t[0].nation.groups_set.remove(t[0])
             self.groups_set.remove(t[1])
             self.groups_set.add(t[0].unification(t[1], link))
 

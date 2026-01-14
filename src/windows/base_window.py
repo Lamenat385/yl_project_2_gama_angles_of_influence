@@ -18,6 +18,7 @@ class BaseWindow(arcade.Window):
     def get_view(self, view_name):
         """Получить или создать представление по имени"""
         if view_name not in self.views:
+            self.set_mouse_visible(True)
             if view_name == "start":
                 from src.windows.start_view import StartView
                 self.views[view_name] = StartView(self)

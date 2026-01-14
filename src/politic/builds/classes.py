@@ -4,22 +4,22 @@ from src.politic.builds.build import Build, FM_Build
 
 
 class City(Build):
-    def __init__(self, coords, nation, id=None):
-        super().__init__(coords, nation, "city", id)
+    def __init__(self, coords, nation, type_data, id=None):
+        super().__init__(coords, nation, type_data, id)
 
 
 class Factory(Build):
-    def __init__(self, coords, nation, type_num, id=None):
-        super().__init__(coords, nation, f"factory_{type_num}", id)
+    def __init__(self, coords, nation, type_data, id=None):
+        super().__init__(coords, nation, type_data, id)
 
 
 class Farm(FM_Build):
-    def __init__(self, coords, nation, type_num, id=None):
-        super().__init__(coords, nation, f"farm_{type_num}", id)
+    def __init__(self, coords, nation, type_data, id=None):
+        super().__init__(coords, nation, type_data, id)
 
     def get_fruitfulness(self, mapp):
         rows, cols = mapp.shape
-        c0, r0 = self.coordinats
+        c0, r0 = self.coordinates
         radius = 15
         r_start = max(0, r0 - radius)
         r_end = min(rows, r0 + radius + 1)
@@ -36,12 +36,12 @@ class Farm(FM_Build):
 
 
 class Mine(FM_Build):
-    def __init__(self, coords, nation, type_num, id=None):
-        super().__init__(coords, nation, f"mine_{type_num}", id)
+    def __init__(self, coords, nation, type_data, id=None):
+        super().__init__(coords, nation, type_data, id)
 
     def get_fruitfulness(self, mapp):
         rows, cols = mapp.shape
-        c0, r0 = self.coordinats
+        c0, r0 = self.coordinates
         radius = 15
         r_start = max(0, r0 - radius)
         r_end = min(rows, r0 + radius + 1)

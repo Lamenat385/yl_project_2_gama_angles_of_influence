@@ -11,7 +11,6 @@ class Nation:
         with open(f"src/politic/nation_data/tech.json", "r", encoding="utf-8") as file:
             data = json.load(file)
         self.tech = data
-        self.groups_set = set()
-        self.capital = City(coords, self)
+        self.capital = City(coords, self,"city1")
         self.manager.new_build(self.capital)
-        self.groups_set.add(Group(self.manager, [(self.capital.id, self.capital.id)]))
+        self.manager.groups_set.add(Group(self.manager, [(self.capital.id, self.capital.id)]))

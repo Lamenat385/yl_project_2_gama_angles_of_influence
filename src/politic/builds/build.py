@@ -4,7 +4,7 @@ import json
 class Build:
     def __init__(self, coords, nation, type_data, id=None):
         self.id = id
-        self.coordinats = coords
+        self.coordinates = coords
         self.nation = nation
         self.type_data = type_data
         with open(f"src/politic/builds_data/{self.type_data}.json", "r", encoding="utf-8") as file:
