@@ -13,4 +13,19 @@ class Nation:
         self.tech = data
         self.capital = City(coords, self,"city1")
         self.manager.new_build(self.capital)
-        self.manager.groups_set.add(Group(self.manager, [(self.capital.id, self.capital.id)]))
+        R=Group(self.manager, [(self.capital.id, self.capital.id)])
+        R.resources = {
+            "food": 300,
+            "population": 1000,
+            "electry": 100,
+            "tree": 0,
+            "stone": 100,
+            "iron": 60,
+            "copper": 30,
+            "uran": 0,
+            "oil": 500,
+            "comp_t1": 10,
+            "comp_t2": 0,
+            "comp_t3": 0,
+        }
+        self.manager.groups_set.add(R)

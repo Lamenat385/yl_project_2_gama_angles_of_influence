@@ -2,7 +2,7 @@ import arcade
 import numpy as np
 from random import choice, seed
 
-from src.politic.builds.classes import Factory, City, Mine, Farm
+from src.politic.builds.classes import Factory, City, Mine, Farm, Port, Lab, Artillery, Electry
 from src.politic.manager import Manager
 from src.registry import reg
 from src.player import Player
@@ -24,6 +24,7 @@ class GameView(arcade.View):
             reg.images["resources/lab.png"],
             reg.images["resources/port.png"],
             reg.images["resources/artillery.png"],
+            reg.images["resources/electry.png"],
         ]
         self.bN = len(self.button_textures)
         self.show_selection_panel = False
@@ -37,8 +38,8 @@ class GameView(arcade.View):
 
         self.trees = np.load("data/saves/1/forest.npy")
         self.height_map = np.load("data/saves/1/land.npy")  # 2D массив высот NxN
-
-        self.groups_manager = Manager(self.height_map)
+        self.fossils_map = np.load("data/saves/1/fossils.npy")
+        self.groups_manager = Manager(self.height_map,self.fossils_map)
         self.player = Player("test", self.groups_manager, "Circle", (100, 200))
 
         self.N = len(self.height_map)
@@ -90,7 +91,6 @@ class GameView(arcade.View):
         sprite.scale = self.cell_size
         self.sprite_list.append(sprite)
         self.update_roads()
-        print(self.roads)
 
         class LineSprite(arcade.Sprite):
             def __init__(self, args):
@@ -206,7 +206,7 @@ class GameView(arcade.View):
             "Высоко-точные энерго-вычеслители: "
         ]
         if self.select_group:
-            stats_texts = [stats_texts[i] + f"{self.select_group.resources_level[list(self.select_group.resources_level.keys())[i]]}% ({self.select_group.resources[list(self.select_group.resources.keys())[i]]})" for i in
+            stats_texts = [stats_texts[i] + f"{self.select_group.resources_level[list(self.select_group.resources_level.keys())[i]]*100}% ({self.select_group.resources[list(self.select_group.resources.keys())[i]]})" for i in
                            range(12)]
         # Высота для каждой строки
         text_height = panel_height_right // 14  # немного меньше для отступов
@@ -289,6 +289,7 @@ class GameView(arcade.View):
                 ["Лаборатория"],
                 ["Порт"],
                 ["Тяжёлая артиллерия", "Сверхтяжёлая артиллерия"],
+                ["Тепловая станция","Ядерная станция"]
             ]
 
             # Полупрозрачный фон
@@ -383,7 +384,7 @@ class GameView(arcade.View):
         new_camera_y = self.camera_y
 
         self.timer+=delta_time
-        if self.timer>=10.0:
+        if self.timer>=1.0:
             self.timer=0
             self.groups_manager.update()
 
@@ -463,7 +464,6 @@ class GameView(arcade.View):
                 square = self.height_map[y_start:y_end, x_start:x_end]
                 k = np.all((square >= 0.2) & (square <= 0.7))
             if k:
-                print(1)
                 self.new_build()
 
         for i in self.groups_manager.groups_set:
@@ -498,7 +498,7 @@ class GameView(arcade.View):
 
     def on_option_selected(self, button_index, option_index):
         """Вызывается при выборе варианта"""
-        buttons = ["city", "factory", "mine", "farm", "lab", "port", "artillery"]
+        buttons = ["city", "factory", "mine", "farm", "lab", "port", "artillery","electry"]
         if 0 <= button_index < self.bN and 0 <= option_index < 4:
             self.cursor_texture = self.button_textures[button_index]
             self.player.current_choice = buttons[button_index] + str(option_index + 1)
@@ -511,12 +511,15 @@ class GameView(arcade.View):
             "factory": Factory,
             "mine": Mine,
             "farm": Farm,
+            "lab": Lab,
+            "port": Port,
+            "artillery": Artillery,
+            "electry": Electry
         }
         build = builds[self.player.current_choice[:-1]]((coords.x / self.cell_size, coords.y / self.cell_size),
                                                         self.player.nation, self.player.current_choice)
         if self.select_group and all(self.select_group.resources[key] >= build.resources_for_build[key] for key in self.select_group.resources.keys()):
             # Выполняем вычитание
-            print(self.select_group)
             for key in self.select_group.resources.keys():
                 self.select_group.resources[key] -= build.resources_for_build[key]
             self.groups_manager.new_build(build)
@@ -553,9 +556,6 @@ class GameView(arcade.View):
             self.camera_moving['right'] = True
         elif key == arcade.key.V:
             self.fossils_view = not self.fossils_view
-        elif key == arcade.key.P:
-            self.create_shapes()
-            self.groups_manager.update()
 
         elif key == arcade.key.TAB:
             for i in range(len(self.selected_builds) - 1):
@@ -565,7 +565,6 @@ class GameView(arcade.View):
                 y1 = int(y1)
                 x2 = int(x2)
                 y2 = int(y2)
-                print(x1, y1, x2, y2)
                 points = []
                 dx = abs(x2 - x1)
                 dy = abs(y2 - y1)
@@ -592,12 +591,12 @@ class GameView(arcade.View):
                     k = False
                 else:
                     values = self.height_map[valid_coords[:, 1], valid_coords[:, 0]]
-                    print(values)
                     k = np.all((values >= 0.2) & (values <= 0.7))
                 if k:
                     link = (self.selected_builds[i].id, self.selected_builds[i + 1].id)
                     self.groups_manager.new_link(link)
             self.selected_builds = []
+            self.create_shapes()
 
         elif key == arcade.key.ESCAPE:
             self.selected_builds = []

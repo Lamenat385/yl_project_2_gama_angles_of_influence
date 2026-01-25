@@ -22,7 +22,7 @@ class Build:
             else:
                 c *= 1
         for key in self.need_resources.keys():
-            out[key] = 0.1 * self.out_resources[key] + c * self.out_resources[key] * 0.9
+            out[key] = c * self.out_resources[key]
         return out
 
 
@@ -33,11 +33,12 @@ class FM_Build(Build):
     def OUT_resources(self, resources_level, mapp=None):
         fruitfulness = self.get_fruitfulness(mapp)
         out = dict()
+        c = 1
         for key in self.need_resources.keys():
             if self.need_resources[key] != 0:
-                out[key] = self.out_resources[key] * 0.1 * fruitfulness + self.out_resources[
-                    key] * 0.9 * fruitfulness * (
-                                   resources_level[key] / self.need_resources[key])
+                c *= resources_level[key] / self.need_resources[key]
             else:
-                out[key] = 0
+                c *= 1
+        for key in self.need_resources.keys():
+            out[key] = c * self.out_resources[key] * fruitfulness
         return out

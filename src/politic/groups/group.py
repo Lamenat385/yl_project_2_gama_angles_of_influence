@@ -61,18 +61,18 @@ class Group:
             self.builds_set.add(self.manager.id_to_build[i])
         self.needs = None
         self.resources = {
-            "food": 500,
-            "population": 500,
-            "electry": 500,
-            "tree": 500,
-            "stone": 500,
-            "iron": 500,
-            "copper": 500,
-            "uran": 500,
-            "oil": 500,
-            "comp_t1": 500,
-            "comp_t2": 500,
-            "comp_t3": 500,
+            "food": 0,
+            "population": 0,
+            "electry": 0,
+            "tree": 0,
+            "stone": 0,
+            "iron": 0,
+            "copper": 0,
+            "uran": 0,
+            "oil": 0,
+            "comp_t1": 0,
+            "comp_t2": 0,
+            "comp_t3": 0,
         }
         self.resources_level = {
             "food": 0,
@@ -89,21 +89,25 @@ class Group:
             "comp_t3": 0,
         }
 
-    def update(self, mapp):
+    def update(self, mapp, fossils):
+        sub = lambda a, b: {k: max(0, a[k] - b[k]) for k in a}
         res_in = Counter()
         for i in self.builds_set:
             res_in.update(i.need_resources)
         self.needs = dict(res_in)
         for key in self.needs.keys():
             try:
-                self.resources_level[key] = self.resources[key] / self.needs[key]
-            except ZeroDivisionError:
-                self.resources_level[key] = 0
+                self.resources_level[key] = int(self.resources[key]) / int(self.needs[key])
+            except Exception:
+                self.resources_level[key] = 1.0
             self.resources_level[key] = min(1.0, self.resources_level[key])
-        res_out = Counter()
+        res_out = Counter(self.resources)
         for i in self.builds_set:
-            res_out.update(i.OUT_resources(self.resources_level, mapp))
-        self.resources = dict(res_out)
+            if i.type_data[:-1] == "mine":
+                res_out.update(i.OUT_resources(self.resources_level, fossils))
+            else:
+                res_out.update(i.OUT_resources(self.resources_level, mapp))
+        self.resources = sub(dict(res_out),self.needs)
 
     def delete_build(self, id):
         for i in self.links_set:
@@ -125,4 +129,7 @@ class Group:
         return result
 
     def unification(self, other, link):
-        return Group(self.manager, list(self.links_set) + list(other.links_set) + [link])
+        add = lambda a, b: {k: a[k] + b[k] for k in a}
+        R=Group(self.manager, list(self.links_set) + list(other.links_set) + [link])
+        R.resources =add(self.resources,other.resources)
+        return R

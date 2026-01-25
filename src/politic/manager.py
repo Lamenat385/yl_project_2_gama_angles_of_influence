@@ -4,11 +4,12 @@ from src.politic.groups.group import Group
 
 
 class Manager:
-    def __init__(self, mapp):
+    def __init__(self, mapp,fossils):
         self.groups_set = set()
         self.id_to_build = {}
         self.world_map = mapp
         self.current_id = 0
+        self.fossils=fossils
 
     def new_build(self, build):
         self.current_id += 1
@@ -45,4 +46,4 @@ class Manager:
                 break
     def update(self):
         for i in self.groups_set:
-            i.update(self.world_map)
+            i.update(self.world_map, self.fossils)
