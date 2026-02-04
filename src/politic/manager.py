@@ -1,26 +1,26 @@
 import numpy as np
 
 from src.politic.groups.group import Group
+from src.politic.territory.territory_manadger import Territory_manager
 
 
 class Manager:
     def __init__(self, mapp,fossils):
         self.groups_set = set()
+        self.nations_set = set()
         self.id_to_build = {}
         self.world_map = mapp
         self.current_id = 0
         self.fossils=fossils
+        self.terrain_manager = Territory_manager(self)
 
     def new_build(self, build):
         self.current_id += 1
         build.id = f"#{self.current_id}"
         self.id_to_build[f"#{self.current_id}"] = build
-        self.groups_set.add(Group(self, [(build.id, build.id)]))
-
-    def build_to_group(self,build):
-        for i in self.groups_set:
-            if build in i.builds_set:
-                return i
+        R = Group(self, [(build.id, build.id)])
+        build.group = R
+        self.groups_set.add(R)
 
     def new_link(self, link):
         t = []
@@ -36,7 +36,12 @@ class Manager:
         if k:
             self.groups_set.remove(t[0])
             self.groups_set.remove(t[1])
-            self.groups_set.add(t[0].unification(t[1], link))
+            R = t[0].unification(t[1], link)
+            for i in t[0].builds_set:
+                    i.group = R
+            for i in t[1].builds_set:
+                i.group = R
+            self.groups_set.add(R)
 
     def delete_link(self, link):
         for i in self.groups_set:
@@ -45,5 +50,6 @@ class Manager:
                 self.groups_set = self.groups_set | i.delete_link()
                 break
     def update(self):
+        self.terrain_manager.update()
         for i in self.groups_set:
             i.update(self.world_map, self.fossils)

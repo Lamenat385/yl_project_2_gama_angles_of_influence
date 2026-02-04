@@ -6,6 +6,7 @@ from src.politic.builds.classes import City
 class Nation:
     def __init__(self, manager, name, ptype, coords):
         self.manager = manager
+        self.manager.nations_set.add(self)
         self.name = name
         self.ptype = ptype
         with open(f"src/politic/nation_data/tech.json", "r", encoding="utf-8") as file:
@@ -13,8 +14,7 @@ class Nation:
         self.tech = data
         self.capital = City(coords, self,"city1")
         self.manager.new_build(self.capital)
-        R=Group(self.manager, [(self.capital.id, self.capital.id)])
-        R.resources = {
+        self.capital.group.resources = {
             "food": 300,
             "population": 1000,
             "electry": 100,
@@ -28,4 +28,4 @@ class Nation:
             "comp_t2": 0,
             "comp_t3": 0,
         }
-        self.manager.groups_set.add(R)
+        self.area=None

@@ -7,7 +7,7 @@ class BaseWindow(arcade.Window):
 
     def __init__(self):
         super().__init__(settings.width, settings.height, settings.title,
-                         resizable=settings.resizable, fullscreen=settings.fullscreen)
+                         resizable=settings.resizable, fullscreen=settings.fullscreen,vsync=True)
         self.set_minimum_size(settings.width_min, settings.height_min)
         self.center_window()
         self.background_color = arcade.color.BLACK

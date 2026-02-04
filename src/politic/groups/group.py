@@ -98,7 +98,7 @@ class Group:
         for key in self.needs.keys():
             try:
                 self.resources_level[key] = int(self.resources[key]) / int(self.needs[key])
-            except Exception:
+            except ZeroDivisionError:
                 self.resources_level[key] = 1.0
             self.resources_level[key] = min(1.0, self.resources_level[key])
         res_out = Counter(self.resources)

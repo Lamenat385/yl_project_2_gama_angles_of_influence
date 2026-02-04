@@ -1,7 +1,6 @@
 import arcade
 import numpy as np
 from random import choice, seed
-
 from src.politic.builds.classes import Factory, City, Mine, Farm, Port, Lab, Artillery, Electry
 from src.politic.manager import Manager
 from src.registry import reg
@@ -21,8 +20,6 @@ class GameView(arcade.View):
             reg.images["resources/factory.png"],
             reg.images["resources/mine.png"],
             reg.images["resources/farm.png"],
-            reg.images["resources/lab.png"],
-            reg.images["resources/port.png"],
             reg.images["resources/artillery.png"],
             reg.images["resources/electry.png"],
         ]
@@ -40,7 +37,8 @@ class GameView(arcade.View):
         self.height_map = np.load("data/saves/1/land.npy")  # 2D массив высот NxN
         self.fossils_map = np.load("data/saves/1/fossils.npy")
         self.groups_manager = Manager(self.height_map,self.fossils_map)
-        self.player = Player("test", self.groups_manager, "Circle", (100, 200))
+        self.player = None
+        self.clUIO=True
 
         self.N = len(self.height_map)
         self.cell_size_percent = 1.25
@@ -84,6 +82,7 @@ class GameView(arcade.View):
         self.list_roads = []
         self.sprite_list_builds = arcade.SpriteList()
         self.sprite_list_trees = arcade.SpriteList()
+        self.areas_list=[]
         sprite = arcade.Sprite()
         sprite.texture = self.world_texture
         sprite.center_x = self.map_width / 2
@@ -141,6 +140,50 @@ class GameView(arcade.View):
         self.sprite_list_builds.sort(key=lambda sprite: sprite.center_y)
         self.sprite_list_trees.sort(key=lambda sprite: sprite.center_y)
 
+        def polygon_to_coords(geom):
+            from shapely.geometry import Polygon, MultiPolygon
+            coords_list = []
+            if geom.is_empty:
+                return coords_list
+            if isinstance(geom, Polygon):
+                # exterior.coords — замкнутый контур (последняя точка = первой)
+                # [:-1] убирает дублирование замыкания, если нужно
+                coords_list.append(list(geom.exterior.coords)[:-1])
+            elif isinstance(geom, MultiPolygon):
+                for poly in geom.geoms:
+                    coords_list.append(list(poly.exterior.coords)[:-1])
+            print(coords_list)
+            return coords_list
+
+        class PolySprite(arcade.Sprite):
+            def __init__(self, args):
+                texture = arcade.Texture.create_empty("poly_texture", (1, 1))
+
+                # Правильная инициализация для новых версий Arcade
+                super().__init__()
+
+                # Устанавливаем текстуру вручную
+                self._texture = texture
+                self._textures = [texture]
+
+                # Делаем спрайт полностью прозрачным
+                self.args = args
+                points = args[0]
+                avg_x = sum(p[0] for p in points) / len(points)
+                avg_y = sum(p[1] for p in points) / len(points)
+                centroid = (avg_x, avg_y)
+                # centroid = np.mean(args[0], axis=0).tolist()
+                self.center_x = centroid[0]
+                self.center_y = centroid[1]
+
+            def draw(self):
+                arcade.draw_polygon_filled(*self.args)
+
+        for i in self.groups_manager.nations_set:
+            u=(np.array(polygon_to_coords(i.area)) * self.cell_size).tolist()
+            for j in u:
+                self.areas_list.append(PolySprite(((j,(0, 100, 200, 128)))))
+
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
 
@@ -152,11 +195,14 @@ class GameView(arcade.View):
             i.draw()
         self.sprite_list_builds.draw(pixelated=True)
         self.sprite_list_trees.draw(pixelated=True)
+        for i in self.areas_list:
+            i.draw()
         self.gui_camera.use()
         self.draw_gui()
 
     def draw_gui(self):
-
+        if self.clUIO:
+            return None
         # === НОВАЯ ПАНЕЛЬ В ВЕРХНЕМ ПРАВОМ УГЛУ ===
         # Размеры панели: 15% ширины экрана, 1/3 высоты экрана
         panel_width_right = int(self.window.width * 0.15)
@@ -206,7 +252,7 @@ class GameView(arcade.View):
             "Высоко-точные энерго-вычеслители: "
         ]
         if self.select_group:
-            stats_texts = [stats_texts[i] + f"{self.select_group.resources_level[list(self.select_group.resources_level.keys())[i]]*100}% ({self.select_group.resources[list(self.select_group.resources.keys())[i]]})" for i in
+            stats_texts = [stats_texts[i] + f"{self.select_group.resources_level[list(self.select_group.resources_level.keys())[i]]*100}% ({int(self.select_group.resources[list(self.select_group.resources.keys())[i]])})" for i in
                            range(12)]
         # Высота для каждой строки
         text_height = panel_height_right // 14  # немного меньше для отступов
@@ -282,12 +328,10 @@ class GameView(arcade.View):
         if hasattr(self, 'show_selection_panel') and self.show_selection_panel:
 
             texts = [
-                ["Город", "Столица"],
+                ["Город"],
                 ["Металичесские детали", "Электро-механические платы", "Высоко-точные энерго-вычеслители"],
                 ["Чёрные металы", "Цветные металы", "Углеводороды", "Сверхтяжёлые энерго-минералы"],
                 ["Ферма"],
-                ["Лаборатория"],
-                ["Порт"],
                 ["Тяжёлая артиллерия", "Сверхтяжёлая артиллерия"],
                 ["Тепловая станция","Ядерная станция"]
             ]
@@ -384,7 +428,7 @@ class GameView(arcade.View):
         new_camera_y = self.camera_y
 
         self.timer+=delta_time
-        if self.timer>=1.0:
+        if self.timer>=1.0 and not self.clUIO:
             self.timer=0
             self.groups_manager.update()
 
@@ -466,13 +510,36 @@ class GameView(arcade.View):
             if k:
                 self.new_build()
 
+
+        if self.clUIO:
+            half_size = 15 // 2
+
+            # Вычисляем границы квадрата
+            x_start = int(coords.x / self.cell_size) - half_size
+            x_end = int(coords.x / self.cell_size) + half_size
+            y_start = int(coords.y / self.cell_size) - half_size
+            y_end = int(coords.y / self.cell_size) + half_size
+
+            # Проверяем границы карты
+            if (x_start < 0 or x_end > self.height_map.shape[1] or
+                    y_start < 0 or y_end > self.height_map.shape[0]):
+                k = False
+            else:
+                square = self.height_map[y_start:y_end, x_start:x_end]
+                k = np.all((square >= 0.2) & (square <= 0.7))
+            if k:
+                self.player = Player("test", self.groups_manager, "Circle", (coords.x/self.cell_size, coords.y/self.cell_size))
+                self.clUIO = False
+                self.create_shapes()
+
+
         for i in self.groups_manager.groups_set:
             for j in i.builds_set:
                 x, y = j.coordinates
                 if j not in self.selected_builds and (x - 15) * self.cell_size < coords.x < (
                         x + 15) * self.cell_size and (y - 15) * self.cell_size < coords.y < (
                         y + 15) * self.cell_size and j.nation is self.player.nation:
-                    self.select_group = self.groups_manager.build_to_group(j)
+                    self.select_group = j.group
                     self.selected_builds.append(j)
                     if len(self.selected_builds) > 15:
                         self.selected_builds = self.selected_builds[-15:]
@@ -498,7 +565,7 @@ class GameView(arcade.View):
 
     def on_option_selected(self, button_index, option_index):
         """Вызывается при выборе варианта"""
-        buttons = ["city", "factory", "mine", "farm", "lab", "port", "artillery","electry"]
+        buttons = ["city", "factory", "mine", "farm", "artillery","electry"]
         if 0 <= button_index < self.bN and 0 <= option_index < 4:
             self.cursor_texture = self.button_textures[button_index]
             self.player.current_choice = buttons[button_index] + str(option_index + 1)
@@ -511,8 +578,6 @@ class GameView(arcade.View):
             "factory": Factory,
             "mine": Mine,
             "farm": Farm,
-            "lab": Lab,
-            "port": Port,
             "artillery": Artillery,
             "electry": Electry
         }
