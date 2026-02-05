@@ -1,6 +1,10 @@
+import random
+
 import arcade
 import numpy as np
 from random import choice, seed
+
+from src.politic.bots.Bot import Bot
 from src.politic.builds.classes import Factory, City, Mine, Farm, Port, Lab, Artillery, Electry
 from src.politic.manager import Manager
 from src.registry import reg
@@ -75,6 +79,16 @@ class GameView(arcade.View):
         self.sprite_list_trees = None
         self.create_shapes()
         self.window.music_player.play()
+
+        mask = (self.height_map >= 0.3) & (self.height_map <= 0.6)
+        coords = np.argwhere(mask)  # массив [[y1, x1], [y2, x2], ...]
+        # Выбираем случайные уникальные точки
+        n_to_select = min(15, len(coords))
+        indices = np.random.choice(len(coords), size=n_to_select, replace=False)
+        selected = coords[indices]
+
+        for j in [(int(y), int(x)) for y, x in selected]:
+            self.groups_manager.new_bot(Bot(self.groups_manager, random.random(),random.random(), j))
 
 
     def create_shapes(self):

@@ -3,7 +3,7 @@ from src.windows.base_window import BaseWindow
 from src.generate_map.generate_map import generation_world_map, basic
 import numpy as np
 from random import randint
-
+from Time.fitting import Builder
 
 if __name__ == "__main__":
     # Создаем главное окно

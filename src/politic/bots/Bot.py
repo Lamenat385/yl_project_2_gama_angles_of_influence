@@ -2,7 +2,6 @@ import random
 from statistics import mode, multimode
 import joblib
 
-from Time.fitting import Builder
 from src.politic.builds.classes import City, Factory, Mine, Farm, Artillery, Electry
 from src.politic.nation import Nation
 
@@ -144,7 +143,7 @@ def global_to_local(y_global, x_global, center_y, center_x,
     return y_local_idx, x_local_idx
 
 
-def extract_and_downscale_multiclass(field, center_x ,center_y, output_size=100, upscale_factor=4):
+def extract_and_downscale_multiclass(field, center_x, center_y, output_size=100, upscale_factor=4):
     """
     Вырезает квадрат 400x400 из поля с центром в центроиде точек,
     разделяет на 4 булевых маски (значения 1-4) и даунскейлит каждую до 100x100.
@@ -161,7 +160,6 @@ def extract_and_downscale_multiclass(field, center_x ,center_y, output_size=100,
         где mask_class_i[y, x] = True, если в соответствующем блоке 4x4 был пиксель со значением i
     """
     # 1. Находим центр облака точек
-
 
     # 2. Размер исходного квадрата до даунскейлинга
     src_size = output_size * upscale_factor  # 400
@@ -205,51 +203,54 @@ def extract_and_downscale_multiclass(field, center_x ,center_y, output_size=100,
 
     return masks  # [mask_1, mask_2, mask_3, mask_4], каждая размером (100, 100)
 
+
 class Bot:
-    def __init__(self,manager,expensive,aggressive,coords):
+    def __init__(self, manager, expensive, aggressive, coords):
         self.manager = manager
         self.expensive = expensive
         self.aggressive = aggressive
-        self.emotions={}
-        self.builder=joblib.load("builder.joblib")
-        self.nation = Nation(self.manager,"name",random.randint(0,3),coords)
-    def update_emotions(self,events):
+        self.emotions = {}
+        self.builder = joblib.load("src/politic/bots/builder.joblib")
+        self.nation = Nation(self.manager, "name", random.randint(0, 3), coords)
+
+    def update_emotions(self, events):
         for i in events:
             if not i["nation"] is self.nation:
-                if i["type"]=="build":
+                if i["type"] == "build":
                     if self.nation.area.contains(i["coordinates"]):
-                        self.emotions[i["nation"]]+=self.expensive*(-20)
-                    if i["data"]=="artillery":
-                        self.emotions[i["nation"]]+=1/(self.aggressive*10)*(-10)+self.expensive*(-10)
-                elif i["type"]=="destroy":
+                        self.emotions[i["nation"]] += self.expensive * (-20)
+                    if i["data"] == "artillery":
+                        self.emotions[i["nation"]] += 1 / (self.aggressive * 10) * (-10) + self.expensive * (-10)
+                elif i["type"] == "destroy":
                     if i["data"].nation is self.nation:
-                        self.emotions[i["nation"]]+=-30-50*self.aggressive*self.expensive
-                elif i["type"]=="trade":
+                        self.emotions[i["nation"]] += -30 - 50 * self.aggressive * self.expensive
+                elif i["type"] == "trade":
                     if not i["data"] is self.nation and not i["nation"] is self.nation:
-                        k = (self.emotions[i["nation"]]+self.emotions[i["data"]])/2
-                        self.emotions[i["nation"]]=(k+self.emotions[i["nation"]])/2
-                        self.emotions[i["data"]]=(k+self.emotions[i["data"]])/2
+                        k = (self.emotions[i["nation"]] + self.emotions[i["data"]]) / 2
+                        self.emotions[i["nation"]] = (k + self.emotions[i["nation"]]) / 2
+                        self.emotions[i["data"]] = (k + self.emotions[i["data"]]) / 2
+
     def choice(self):
-        own=[]
-        enemy=[]
-        groups=[]
+        own = []
+        enemy = []
+        groups = []
         for i in self.manager.id_to_build.values():
             if i.nation is self.nation:
                 groups.append(i.group)
                 own.append(i.coordinates)
             else:
                 enemy.append(i.coordinates)
-        group=multimode(groups)[0]
-        bal=group.resources
-        map,cords=extract_and_downscale(self.manager.world_map,own,100,4)
+        group = multimode(groups)[0]
+        bal = group.resources
+        map, cords = extract_and_downscale(self.manager.world_map, own, 100, 4)
         for i in range(len(own)):
-            own[i]=global_to_local(*own[i],*cords,100,4)
+            own[i] = global_to_local(*own[i], *cords, 100, 4)
         for i in range(len(enemy)):
-            enemy[i]=global_to_local(*enemy[i],*cords,100,4)
-        r=extract_and_downscale_multiclass(self.manager.fossils,*cords,100,4)
+            enemy[i] = global_to_local(*enemy[i], *cords, 100, 4)
+        r = extract_and_downscale_multiclass(self.manager.fossils, *cords, 100, 4)
 
-        fc, tp, scr= self.builder.recommend(map,r,bal,own,enemy,self.aggressive,self.expensive)
-        coords=local_to_global(*fc,*cords)
+        fc, tp, scr = self.builder.recommend(map, r, bal, own, enemy, self.aggressive, self.expensive)
+        coords = local_to_global(*fc, *cords)
         builds = {
             "city": City,
             "factory": Factory,
@@ -258,5 +259,15 @@ class Bot:
             "artillery": Artillery,
             "electry": Electry
         }
-        b=builds[tp[:-1]](coords,self.nation,tp)
+        b = builds[tp[:-1]](coords, self.nation, tp)
         self.manager.new_build(b)
+        dist = 1e9
+        g = None
+        for k, v in self.manager.id_to_build.items():
+            if v.nation is self.nation:
+                d = ((v.coordinates[0] - b.coordinates[0]) + (v.coordinates[1] - b.coordinates[1])) * 0.5
+                if d < dist:
+                    dist = d
+                    g = k
+        l = (b.id, g)
+        self.manager.new_link(l)
