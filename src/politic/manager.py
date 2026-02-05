@@ -60,3 +60,4 @@ class Manager:
             i.update(self.world_map, self.fossils)
         # for i in self.bots_set:
         #     i.choice()
+
