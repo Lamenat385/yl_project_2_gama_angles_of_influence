@@ -7,6 +7,7 @@ from src.politic.territory.territory_manadger import Territory_manager
 class Manager:
     def __init__(self, mapp,fossils):
         self.groups_set = set()
+        self.bots_set = set()
         self.nations_set = set()
         self.id_to_build = {}
         self.world_map = mapp
@@ -14,6 +15,8 @@ class Manager:
         self.fossils=fossils
         self.terrain_manager = Territory_manager(self)
 
+    def new_bot(self, bot):
+        self.bots_set.add(bot)
     def new_build(self, build):
         self.current_id += 1
         build.id = f"#{self.current_id}"

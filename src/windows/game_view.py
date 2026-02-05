@@ -74,6 +74,8 @@ class GameView(arcade.View):
         self.sprite_list_builds = None
         self.sprite_list_trees = None
         self.create_shapes()
+        self.window.music_player.play()
+
 
     def create_shapes(self):
         """Создание спрайтов для отрисовки сетки"""

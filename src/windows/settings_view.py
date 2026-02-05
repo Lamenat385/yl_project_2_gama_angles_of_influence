@@ -2,31 +2,36 @@ import arcade
 import arcade.gui
 
 
-class MainMenuView(arcade.View):
-    """Главное меню игры"""
+class SettingsView(arcade.View):
+    """Экран настроек с регулировкой громкости"""
 
     def __init__(self, window):
         super().__init__()
         self.window = window
         self.manager = None
-        # Не создаем UI здесь, ждем on_show_view
+        self.volume_slider = None
+        self.volume_label = None
+        self.music_player = None  # Ссылка на плеер музыки
 
     def on_show_view(self):
-        """Вызывается при показе этого представления"""
+        """Инициализация при показе экрана настроек"""
+        # Пытаемся получить плеер музыки из окна (если он там хранится)
         self.create_ui()
+        arcade.set_background_color(arcade.color.BLACK)
 
     def on_draw(self):
-        """Рисование"""
+        """Отрисовка интерфейса"""
         self.clear()
         if self.manager:
             self.manager.draw()
 
     def on_key_press(self, key, modifiers):
+        """Обработка нажатия ESC для возврата в главное меню"""
         if key == arcade.key.ESCAPE:
-            self.window.switch_view("start")
+            self.window.switch_view("main_menu")
 
     def create_ui(self):
-        """Создание интерфейса главного меню"""
+        """Создание интерфейса настроек громкости"""
         # Очищаем предыдущий менеджер
         if self.manager:
             self.manager.clear()
@@ -36,95 +41,107 @@ class MainMenuView(arcade.View):
         self.manager = arcade.gui.UIManager()
         self.manager.enable()
 
-        # Создаем контейнер с якорями (anchor layout)
+        # Основной контейнер
         anchor_layout = arcade.gui.UIAnchorLayout()
 
-        # Создаем вертикальный контейнер для элементов
-        v_box = arcade.gui.UIBoxLayout(vertical=True)
+        # Вертикальный контейнер для элементов
+        v_box = arcade.gui.UIBoxLayout(vertical=True, space_between=20)
 
-        # Заголовок
+        # Заголовок "Громкость"
         title = arcade.gui.UILabel(
-            text="Главное меню",
-            font_size=32,
+            text="Громкость",
+            font_size=36,
             font_name=("Arial", "Calibri", "sans-serif"),
-            text_color=arcade.color.RED,
+            text_color=arcade.color.WHITE,
             bold=True,
-            width=300,
+            width=400,
             align="center"
         )
         v_box.add(title)
 
-        # Отступ после заголовка
-        v_box.add(arcade.gui.UIBoxLayout(height=40))
+        # Текущее значение громкости (динамически обновляется)
+        self.volume_label = arcade.gui.UILabel(
+            text="50%",
+            font_size=24,
+            font_name=("Arial", "Calibri", "sans-serif"),
+            text_color=arcade.color.LIGHT_GRAY,
+            width=400,
+            align="center"
+        )
+        v_box.add(self.volume_label)
 
-        # Кнопки
-        buttons_data = [
-            ("Начать игру", "start_game"),
-            ("Настройки", "settings"),
-            ("Выход", "exit")
-        ]
+        # Ползунок громкости
+        current_volume = 0.5  # Значение по умолчанию
+        if self.music_player and hasattr(self.music_player, 'volume'):
+            current_volume = self.music_player.volume
 
-        for text, view_name in buttons_data:
-            button = create_button(text)
+        self.volume_slider = arcade.gui.UISlider(
+            value=current_volume * 100,  # UISlider работает в диапазоне 0-100
+            width=300,
+            height=30
+        )
+        v_box.add(self.volume_slider)
 
-            # Создаем замыкание для каждой кнопки
-            def create_handler(name):
-                return lambda event: self.window.switch_view(name)
+        # Обработчик изменения значения ползунка
+        @self.volume_slider.event("on_change")
+        def on_volume_change(event):
+            volume_percent = int(event.new_value)
+            volume_float = event.new_value / 100.0
+            self.volume_label.text = f"{volume_percent}%"
 
-            button.on_click = create_handler(view_name)
-            v_box.add(button)
-            v_box.add(arcade.gui.UIBoxLayout(height=10))
+            # Применяем громкость к музыке
+            if self.window.music_player:
+                self.window.music_player.volume = volume_float
 
-        # Добавляем вертикальный контейнер в anchor layout
+        # Отступ
+        v_box.add(arcade.gui.UIBoxLayout(height=30))
+
+        # Кнопка "Назад"
+        back_button = arcade.gui.UIFlatButton(
+            text="← Назад",
+            width=180,
+            height=50,
+            style={
+                "normal": {
+                    "font_name": "Arial",
+                    "font_size": 18,
+                    "font_color": arcade.color.WHITE,
+                    "bg_color": (70, 70, 70),
+                    "border_color": arcade.color.WHITE,
+                    "border_width": 2
+                },
+                "hover": {
+                    "bg_color": (90, 90, 90),
+                    "border_color": arcade.color.GOLD
+                },
+                "press": {
+                    "bg_color": (50, 50, 50),
+                    "font_color": arcade.color.GOLD
+                }
+            }
+        )
+
+        @back_button.event("on_click")
+        def on_back_click(event):
+            self.window.switch_view("main_menu")
+
+        v_box.add(back_button)
+
+        # Центрируем контейнер
         anchor_layout.add(
             child=v_box,
             anchor_x="center_x",
             anchor_y="center_y"
         )
 
-        # Добавляем anchor layout в менеджер
         self.manager.add(anchor_layout)
 
     def on_hide_view(self):
-        """Вызывается при скрытии представления"""
+        """Очистка при скрытии экрана"""
         if self.manager:
             self.manager.disable()
 
     def on_resize(self, width: float, height: float):
-        """Обработка изменения размера окна"""
+        """Пересоздание интерфейса при изменении размера окна"""
         super().on_resize(width, height)
         self.create_ui()
-
-
-def create_button(text, color_scheme="blue"):
-    color_map = {
-        "blue": {"normal": (57, 91, 158), "hover": (72, 118, 205), "press": (35, 60, 110)},
-        "green": {"normal": (57, 158, 91), "hover": (72, 205, 118), "press": (35, 110, 60)},
-        "red": {"normal": (158, 57, 57), "hover": (205, 72, 72), "press": (110, 35, 35)}
-    }
-
-    colors = color_map[color_scheme]
-
-    return arcade.gui.UIFlatButton(
-        text=text,
-        width=220,
-        height=55,
-        style={
-            "normal": {
-                "font_name": "Arial",
-                "font_size": 20,
-                "font_color": arcade.color.WHITE,
-                "bg_color": colors["normal"],
-                "border_color": arcade.color.WHITE,
-                "border_width": 2
-            },
-            "hover": {
-                "bg_color": colors["hover"],
-                "border_color": (255, 215, 0)
-            },
-            "press": {
-                "bg_color": colors["press"],
-                "font_color": arcade.color.YELLOW
-            }
-        }
-    )

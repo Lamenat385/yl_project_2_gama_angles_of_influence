@@ -14,17 +14,22 @@ class BaseWindow(arcade.Window):
         self.set_fullscreen(not self.fullscreen)
         # Храним представления
         self.views = {}
+        self.music_player=arcade.Sound("tralan.wav").play(loop=True)
+        self.music_player.pause()
 
     def get_view(self, view_name):
         """Получить или создать представление по имени"""
+        self.set_mouse_visible(True)
         if view_name not in self.views:
-            self.set_mouse_visible(True)
             if view_name == "start":
                 from src.windows.start_view import StartView
                 self.views[view_name] = StartView(self)
             elif view_name == "main_menu":
                 from src.windows.main_menu_view import MainMenuView
                 self.views[view_name] = MainMenuView(self)
+            elif view_name == "settings":
+                from src.windows.settings_view import SettingsView
+                self.views[view_name] = SettingsView(self)
             elif view_name == "start_game":
                 from src.windows.saves_view import SaveGameView
                 self.views[view_name] = SaveGameView(self)
