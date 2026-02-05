@@ -249,7 +249,7 @@ class Bot:
             enemy[i] = global_to_local(*enemy[i], *cords, 100, 4)
         r = extract_and_downscale_multiclass(self.manager.fossils, *cords, 100, 4)
 
-        fc, tp, scr = self.builder.recommend(map, r, bal, own, enemy, self.aggressive, self.expensive)
+        fc, tp, scr = self.builder.recommend(map, r, bal, np.array(own), np.array(enemy), self.aggressive, self.expensive)
         coords = local_to_global(*fc, *cords)
         builds = {
             "city": City,
