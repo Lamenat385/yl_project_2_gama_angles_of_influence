@@ -34,23 +34,6 @@ def pon_gen(field):
     enemy = np.unique(enemy, axis=0) if enemy.size else np.empty((0, 2))
     return np.round(own).astype(int), np.round(enemy).astype(int)
 
-
-BUILDING_DATA = [
-                    json.load(open(r'C:\Some_Projects\YL_proj_2\src\politic\builds_data\city1.json'))
-                ] + [
-                    json.load(open(fr'C:\Some_Projects\YL_proj_2\src\politic\builds_data\electry{i}.json')) for i in
-                    range(1, 3)
-                ] + [
-                    json.load(open(fr'C:\Some_Projects\YL_proj_2\src\politic\builds_data\factory{i}.json')) for i in
-                    range(1, 4)
-                ] + [
-                    json.load(open(fr'C:\Some_Projects\YL_proj_2\src\politic\builds_data\mine{i}.json')) for i in
-                    range(1, 5)
-                ] + [
-                    json.load(open(r'C:\Some_Projects\YL_proj_2\src\politic\builds_data\farm1.json'))
-                ]  # 11 зданий
-
-
 def bal_G(bal):
     """Возвращает тип здания (0-10) с учётом баланса ресурсов"""
     best_score = -np.inf
